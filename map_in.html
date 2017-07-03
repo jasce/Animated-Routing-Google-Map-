@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+<style type="text/css">
+    html { height: 80% }
+    body { height: 100%; margin: 0px auto; padding: 0 }
+    #map { height: 90%; width: 90%; margin: 0px auto; }
+</style>
+
+<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&libraries=geometry"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    
+<script type="text/javascript">
+var line;
+
+var map;
+var pointDistances;
+
+function initialize() {
+    var mapOptions = {
+        center: new google.maps.LatLng(24.7515, 78.6569),
+        zoom: 5,
+        mapTypeId: google.maps.MapTypeId.ROADMAP
+    };
+
+    map = new google.maps.Map(document.getElementById('map'), mapOptions);
+
+     // 2D Array of [2,6]
+    var lineCoordinates = [
+        [new google.maps.LatLng(28.7041, 77.1025),  // New DElhi
+        new google.maps.LatLng(27.1767, 78.0081),   // Agra
+        new google.maps.LatLng(25.4358, 81.8463),   // Allahabad
+        new google.maps.LatLng(25.3176, 82.9739),  // Varanasi
+        new google.maps.LatLng(24.7955, 84.9994),  // Gaya
+        new google.maps.LatLng(22.8046, 86.2029)    // Jamshedpur
+        ],
+        [new google.maps.LatLng(22.2587, 71.1924), // Gujarat
+        new google.maps.LatLng(27.0238, 74.2179),  // Rajasthan
+        new google.maps.LatLng(27.4924, 77.6737),   // Mathura
+         new google.maps.LatLng(26.8467, 80.9462),  // Lucknow
+        new google.maps.LatLng(33.7782, 76.5762),   // Jammu
+        new google.maps.LatLng(31.6340, 74.8723)    // Amritsar
+        ]
+
+    ];
+
+    for(var i=0;i<2;i++){           
+               
+
+                var marker = new google.maps.Marker({
+                position: lineCoordinates[i][0],
+                map: map,
+                title: 'Play Animation'
+                   });          
+
+
+                google.maps.event.addListener(marker, 'click', (function(marker, i) {
+                    return function() {                      
+                      onclickfire(i);
+                    }
+                })(marker, i));            
+
+    }    
+
+    function onclickfire(a){
+    var sphericalLib = google.maps.geometry.spherical;
+
+    pointDistances = [];
+    var pointZero = lineCoordinates[a][0];
+    var wholeDist = sphericalLib.computeDistanceBetween(
+                        pointZero,
+                        lineCoordinates[a][lineCoordinates.length - 1]);
+    
+    for (var i = 0; i < lineCoordinates[a].length; i++) {
+        pointDistances[i] = 100 * sphericalLib.computeDistanceBetween(
+                                        lineCoordinates[a][i], pointZero) / wholeDist;
+        console.log('pointDistances[' + i + ']: ' + pointDistances[i]);
+    }
+
+    // define polyline
+    var lineSymbol = {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 6,
+        strokeColor: '#393'
+    };
+
+    line = new google.maps.Polyline({
+        path: lineCoordinates[a],
+        strokeColor: '#FF0000',
+        strokeOpacity: 1.0,
+        strokeWeight: 2,
+        icons: [{
+            icon: lineSymbol,
+            offset: '100%'
+        }],
+        map: map
+    });
+
+    animateCircle();
+};
+
+
+
+}
+
+    
+
+
+var id;
+function animateCircle() {
+    var count = 1;
+    var offset;
+    var sentiel = -1;
+    var dist;
+    
+    id = window.setInterval(function () {
+        count = (count + 0.5) % 2000;
+        var dist = offset * 4.5;
+        offset = count - 2 ;
+        
+        for (var i = pointDistances.length - 1; i > sentiel; i--) {
+            console.log(i  + " " + pointDistances[i] + " " + offset);
+            if (dist > pointDistances[i]) {
+                console.log('create marker');
+                var marker = new google.maps.Marker({
+                    icon: {
+                        url:"https://maps.gstatic.com/intl/en_us/mapfiles/markers2/measle_blue.png",
+                        size: new google.maps.Size(7,7),
+                        anchor: new google.maps.Point(4,4)
+                    },
+                    position: line.getPath().getAt(i),
+                    title: line.getPath().getAt(i).toUrlValue(6),
+                    map: map
+                });
+                
+                sentiel++;
+                break;
+            }
+        }
+        
+        // we have only one icon
+        var icons = line.get('icons');
+        icons[0].offset = (offset) + '%';
+        line.set('icons', icons);
+        
+        if (line.get('icons')[0].offset == "99.5%") {
+            icons[0].offset = '100%';
+            line.set('icons', icons);
+            window.clearInterval(id);
+        }
+        
+    }, 20);
+}
+
+google.maps.event.addDomListener(window, 'load', initialize);
+
+
+
+</script>
+</head>
+
+<body>
+<div style="text-align: center;">
+    
+    <h1 style="text-align: center;"> Click on the markers on the map to play Animation! </h1>
+    <p style="padding: 20px;"></p>
+
+        
+
+</div>
+<div id='map'></div>
+
+</body>
+</html>

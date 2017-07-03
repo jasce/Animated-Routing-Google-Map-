@@ -61,8 +61,7 @@ function initialize() {
                     return function() {                      
                       onclickfire(i);
                     }
-                })(marker, i));            
-
+                })(marker, i));
     }    
 
     function onclickfire(a){
@@ -101,13 +100,7 @@ function initialize() {
 
     animateCircle();
 };
-
-
-
 }
-
-    
-
 
 var id;
 function animateCircle() {
@@ -134,13 +127,11 @@ function animateCircle() {
                     position: line.getPath().getAt(i),
                     title: line.getPath().getAt(i).toUrlValue(6),
                     map: map
-                });
-                
+                });                
                 sentiel++;
                 break;
             }
-        }
-        
+        }        
         // we have only one icon
         var icons = line.get('icons');
         icons[0].offset = (offset) + '%';
@@ -150,26 +141,16 @@ function animateCircle() {
             icons[0].offset = '100%';
             line.set('icons', icons);
             window.clearInterval(id);
-        }
-        
+        }        
     }, 20);
 }
-
 google.maps.event.addDomListener(window, 'load', initialize);
-
-
-
 </script>
 </head>
-
 <body>
-<div style="text-align: center;">
-    
+<div style="text-align: center;">    
     <h1 style="text-align: center;"> Click on the markers on the map to play Animation! </h1>
     <p style="padding: 20px;"></p>
-
-        
-
 </div>
 <div id='map'></div>
 
